@@ -4,7 +4,7 @@ return array(
     'name' => 'Товар дня',
     'description' => 'Обратный отсчет времени',
     'vendor'=>903438,
-    'version'=>'1.0.2',
+    'version'=>'1.0.3',
     'img'=>'img/productday.png',
     'shop_settings' => true,
     'frontend'    => true,

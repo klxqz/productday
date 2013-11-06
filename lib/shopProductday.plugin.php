@@ -4,10 +4,30 @@
 class shopProductdayPlugin extends shopPlugin
 {
     protected static $tmp_path = 'plugins/productday/templates/Productday.html';
+    protected static $plugin;
+
+
+    public function __construct($info)
+    {
+        parent::__construct($info);
+        if(!self::$plugin) {
+            self::$plugin = &$this;
+        }
+        
+    }
+    
+    protected static function getThisPlugin()
+    {
+        if(self::$plugin) {
+            return self::$plugin;
+        } else {
+            return wa()->getPlugin('productday'); 
+        }       
+    }
     
     public static function display()
     {
-        $plugin = wa()->getPlugin('productday');
+        $plugin = self::getThisPlugin();
         $plugin_path = $plugin->path;
         $product = $plugin->getProductday();
 
@@ -39,7 +59,6 @@ class shopProductdayPlugin extends shopPlugin
     
     public function getProductday()
     {
-        $app_settings_model = new waAppSettingsModel();
         $mode = $this->getSettings('mode');
         $date = $this->getSettings('date');
         $product_id = $this->getSettings('product_id');
