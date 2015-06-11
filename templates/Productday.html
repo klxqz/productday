@@ -1,65 +1,75 @@
-{if $product}
-
-<script type="text/javascript">
-    var CountdownImageFolder = "{$wa_app_static_url}plugins/productday/img/countdown/";
-</script>
-<script src="{$wa_app_static_url}plugins/productday/js/countdown.js" type="text/javascript"></script>
-
-<style type="text/css">
-
-.productday_title{
-    text-align: center;
-    font-weight: bold;
-    margin: 10px 0px;
-}
-.productday_img{
-    text-align: center;
-}
-
-.productday_name{
-    text-align: center;
-}
-
-.productday_block .product-price{
-    text-align: center;
-}
-#stage_jbeeb_3{
-    margin: 0 auto !important;
-}
-
-</style>
-
-<div class="productday_block">
-    <div class="productday_title">Товар дня</div>
-    
-    
-    <script type="application/javascript">
-    var myCountdown1 = new Countdown({
-    								 	time: {$time},
-    									width:200, 
-    									height:60,  
-    									rangeHi:"hour",
-    									style:"flip"
-                          	
-    									});
+{if $product_day}
+    <script type="text/javascript">
+        var CountdownImageFolder = "../img/countdown/";
     </script>
-    
-    <div class="productday_img">
-        <a href="{$wa->shop->productUrl($product)}">
-        {$wa->shop->productImgHtml($product, '100x100', ['itemprop' => 'image', 'alt' => $product.name])}  
-        </a>
-    </div>
-    
-    <div class="productday_name">
-        <a href="{$wa->shop->productUrl($product)}">
-            <span itemprop="name">{$product.name|truncate:60}</span>
-        </a>
-    </div>
-    
-    <div class="product-price">
-        {if $product.compare_price>0}<span class="compare-at-price nowrap">{shop_currency($product.compare_price)}</span>{/if}
-        <span class="price nowrap" data-price="{$product.price}">{shop_currency($product.price)}</span>
-    </div>
+    <script src="{$wa_app_static_url}plugins/productday/js/countdown.js" type="text/javascript"></script>
 
-</div>
+    <style type="text/css">
+        .productday_title{ text-align: center; font-weight: bold; margin: 10px 0px; }
+        .productday_description{ text-align: center; }
+        .productday_img{ text-align: center; }
+        .productday_name{ text-align: center; }
+        .productday_block .product-price{ text-align: center; }
+        [id*="Stage_jbeeb_"]{ margin: 0 auto !important; }
+        .compare-at-price { text-decoration: line-through; color: #c66; margin: 0 3px; }
+    </style>
+
+    <div class="productday_block">
+        <div class="productday_title">{$settings.title|escape}</div>
+        <p class="productday_description">{$settings.description|escape}</p>
+
+
+        <script type="text/javascript">
+        function countdownComplete() {
+            $('.productday_block').remove();
+        }
+
+        new Countdown({
+            time: {$time},
+            width: {$settings.width|escape},
+            height: {$settings.height|escape},
+            rangeHi: "hour",
+            style: "{$settings.style|escape}", //"boring" or "flip"
+            hideLabels: {$settings.hideLabels|escape},
+            hideLine: {$settings.hideLine|escape},
+            labelText: {
+                second: "{$settings.second_text|escape}",
+                minute: "{$settings.minute_text|escape}",
+                hour: "{$settings.hour_text|escape}"
+            },
+            numbers: {
+                font: "Arial",
+                color: "{$settings.numbers_color|escape}",
+                bkgd: "{$settings.numbers_bkgd|escape}",
+                rounded: 0.15 // percentage of size 
+            },
+            labels: {
+                font: "Arial",
+                color: "{$settings.labels_color|escape}",
+                offset: 0, // Number of pixels to push the labels down away from numbers.
+                textScale: {$settings.labels_size|escape}, // Percentage of size
+                weight: "normal" // < - no comma on last item!
+            },
+            onComplete: countdownComplete
+        });
+        </script>
+
+        <div class="productday_img">
+            <a href="{$wa->shop->productUrl($product_day)}">
+                {$wa->shop->productImgHtml($product_day, '200', ['itemprop' => 'image', 'alt' => $product_day.name])}  
+            </a>
+        </div>
+
+        <div class="productday_name">
+            <a href="{$wa->shop->productUrl($product_day)}">
+                <span itemprop="name">{$product_day.name|truncate:60}</span>
+            </a>
+        </div>
+
+        <div class="product-price">
+            {if $product_day.compare_price > 0}<span class="compare-at-price nowrap">{shop_currency($product_day.compare_price)}</span>{/if}
+            <span class="price nowrap" data-price="{$product_day.price}">{shop_currency($product_day.price)}</span>
+        </div>
+
+    </div>
 {/if}

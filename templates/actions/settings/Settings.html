@@ -1,3 +1,5 @@
+<script type="text/javascript" src="{$wa_url}wa-content/js/farbtastic/farbtastic.js"></script>
+<link rel="stylesheet" href="{$wa_url}wa-content/js/farbtastic/farbtastic.css" type="text/css" />
 <style type="text/css">
     #wa .CodeMirror{
         border: 1px solid #eee;
@@ -7,136 +9,395 @@
         overflow-y: hidden;
         overflow-x: auto;
     }
+    .plugin-menu{
+        float: right;
+        list-style: none;
+    }
+
+    .plugin-menu li{
+        float: left;
+        margin-left: 10px;
+    }
+    .plugin-menu li a{
+        text-decoration: underline;
+    }
 </style>
+
+
 <div class="block double-padded">
-<h1>Товар дня</h1>
-<div     class="fields form">
-    <form action="?plugin=productday&action=save" method="post" id="plugins-settings-form">
-    {$wa->csrf()}
-    
-    {literal}
-    <p>{shopProductdayPlugin::display()} - Код хелпера вывода</p>
-    {/literal}
-    <p class="gray">
-    <i class="icon16 exclamation"></i>
-    Используя этот код Вы можете осуществить вывод "Товара дня" в любом месте вашей темы оформления, это позволяет избавиться от привязки к конкретным местам вывода плагина
-    </p>
+    <ul class="plugin-menu">
+        <li><a target="_blank" href="http://www.webasyst.ru/store/plugin/shop/productday/reviews/">Оставить отзыв о плагине</a></li>
+        <li><a href="mailto:support@wa-plugins.ru">Поддержка разработчика плагина</a></li>
+        <li><a target="_blank" href="http://wa-plugins.ru/">WA-PLUGINS.ru - сайт разработчика</a></li>
+    </ul>
+    <h1>Товар дня</h1>
+    <div class="fields form">
+        <form action="?plugin=productday&action=save" method="post" id="plugins-settings-form">
+            {$wa->csrf()}
 
-    <div class="field">
-        <div class="name">
-            Режим:
-        </div>
-        <div class="value">
-            
-            <input {if !$mode}checked="checked"{/if} type="radio" name="shop_productday[mode]" value="" /> - Отключен
-            <p class="hint">Товар дня не выводится</p>
-            
-            
-        </div>
-        <div class="value">
-            
-            <input {if $mode == 'auto'}checked="checked"{/if} type="radio" name="shop_productday[mode]" value="auto" /> - Авто
-            <p class="hint">Товар дня выбирается случаенным образом из товаров с зачеркнутой ценой</p>
-            
-            
-        </div>
-        <div class="value">
-            
-            <input {if $mode == 'manual'}checked="checked"{/if} type="radio" name="shop_productday[mode]" value="manual" /> - Ручной
-            <p class="hint">Вы самостоятельно указываете товар дня</p>
-            <p><input {if $mode != 'manual'}disabled="disabled"{/if} type="text" value="{$product_url}" name="shop_productday[product_url]"  placeholder="Сссылка на товар" size="200" /></p>
-            
 
-        </div>
-    </div>
-    
-    
-    <div class="field">
-        <div class="name">
-            Вывод плагина в стандартном месте
-        </div>
-        <div class="value">
-            <select name="shop_productday[default_output]">
-                <option {if $default_output == 1} selected="selected"{/if} value="1">Включен</option>
-                <option {if $default_output == 0} selected="selected"{/if} value="0">Выключен</option>
-            </select>
-            <p class="gray">
-            <i class="icon16 exclamation"></i>
-            Вы можете отключить стандартный вывод, это может быть полезно если вы используете хелпер вывода
+            <p>{ldelim}<b>shopProductdayPlugin::display()</b>{rdelim}  - Код хелпера вывода, данный код позволяет вывести плагин в произвольном месте.<br/> 
+                Перейдите в редактор Вашей темы дизайна, выберете шаблон для размещения плагина и добавьте код хелпера в шаблон.<br/> 
+                Плагин будет выводится в том месте темы оформления, где был размещен хелпер вывода.<br/>
+                Чтобы плагин не выводился в двух местах одновременно: в стандартном и там, где размещен хелпер вывода, необходимо отключить "Вывод плагина в стандартном месте".
             </p>
-        </div>
-    </div>
-    
-    <div class="field">
-        <div class="name">Шаблон<br /><span class="hint">HTML + Smarty</span></div>
-        <div class="value no-shift">
-            <div id="s-editor-core-wrapper">
-                <textarea id="sf-template" class="body" name="template">{$template}</textarea>
+
+            <div class="field-group">
+                <div class="field">
+                    <div class="name">
+                        Статус плагина
+                    </div>
+                    <div class="value">
+                        <select name="shop_productday[status]">
+                            <option {if $_settings.status == 1} selected="selected"{/if} value="1">Включен</option>
+                            <option {if $_settings.status == 0} selected="selected"{/if} value="0">Выключен</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-        </div>
-        
-        {if $change_tpl}
-        <div class="value">
-            <p class="gray"><i class="icon16 exclamation"></i>Внимание! Шаблон по умолчанию был изменен</p>
-            <input type="checkbox" name="shop_productday[reset_tpl]" value="1"  /> - Сбросить изменения, использовать шаблон по умолчанию
-        </div>
-        {/if}
-    </div>
 
-    
+            {$tpls = array()}
+            {foreach $domain_routes as $domain => $routes}
+                {foreach $routes as $route}
+                    {$domain_route = "`$domain`/`$route.url`"}
+                    {$domain_hash = md5($domain_route)}
+                    {$settings = $domain_settings[$domain_hash]}
+                    {$templates = $settings.templates}
 
-    
-    <div class="field">
-        <div class="value submit">
-            <input type="submit" class="button green" value="Сохранить">
-            <span id="plugins-settings-form-status" style="display:none">
-                <i style="vertical-align:middle" class="icon16 yes"></i> [`Saved`]
-            </span>
-        </div>
+                    <h2>Поселение: {$domain_route}</h2>
+                    <div class="field-group">
+                        <div class="field">
+                            <div class="name">
+                                Режим выбора товара:
+                            </div>
+                            <div class="value">
+                                <input {if !$settings.mode}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="" /> - Отключен
+                                <p class="hint">Товар дня не выводится</p>
+                            </div>
+                            <div class="value">
+                                <input {if $settings.mode == 'auto'}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="auto" /> - Авто
+                                <p class="hint">Товар дня выбирается случаенным образом из товаров с зачеркнутой ценой</p>
+                            </div>
+                            <div class="value">
+                                <input {if $settings.mode == 'manual'}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="manual" /> - Ручной
+                                <p class="hint">Ссылка на страницу товара дня</p>
+                                <p><input {if $settings.mode != 'manual'}disabled="disabled"{/if} type="text" value="{$settings.product_url|escape|default:''}" name="domains_settings[{$domain_hash}][product_url]"  placeholder="Сссылка на товар" size="200" /></p>
+                            </div>
+                            <div class="value">
+                                <input {if $settings.mode == 'list'}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="list" /> - Список товаров
+                                <p class="hint">Товары дня будут браться последовательно из указанного вами списка</p>
+                                <p><input {if $settings.mode != 'list'}disabled="disabled"{/if} type="text" value="{$settings.set_id|escape|default:''}" name="domains_settings[{$domain_hash}][set_id]"  placeholder="Идентификатор списка" size="200" /></p>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="name">
+                                Вывод плагина в стандартном месте
+                            </div>
+                            <div class="value">
+                                <select name="domains_settings[{$domain_hash}][default_output]">
+                                    <option {if $settings.default_output == 1} selected="selected"{/if} value="1">Включен</option>
+                                    <option {if $settings.default_output == 0} selected="selected"{/if} value="0">Выключен</option>
+                                </select>
+                                <p class="gray">
+                                    <i class="hint"></i>
+                                    Вы можете отключить стандартный вывод, это может быть полезно если вы используете хелпер вывода
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <div class="field">
+                            <div class="name">
+                                Заголовок
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][title]" value="{$settings.title|escape}" />
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="name">
+                                Описание
+                            </div>
+                            <div class="value">
+                                <textarea name="domains_settings[{$domain_hash}][description]">{$settings.description|escape}</textarea>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="name">
+                                Время обратного отсчета
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][interval]" value="{$settings.interval|escape}" class="small" />
+                                <p class="hint">Число часов(может быть дробным, разделитель точка). Минимальное значение от 1 минуты  до 24 часов.</p>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="name">
+                                Ширина
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][width]" value="{$settings.width|escape}" class="small" />
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="name">
+                                Высота
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][height]" value="{$settings.height|escape}" class="small" />
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="name">
+                                Стиль
+                            </div>
+                            <div class="value">
+                                <select name="domains_settings[{$domain_hash}][style]">
+                                    <option {if $settings.style == 'flip'} selected="selected"{/if} value="flip">flip</option>
+                                    <option {if $settings.style == 'boring'} selected="selected"{/if} value="boring">boring</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="name">
+                                Смещение времени
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][offset]" value="{$settings.offset|escape}" class="small" />
+                                <p class="hint">Целое количество часов. Данный параметр позволяет скорректировать системное время. Значение 2 увеличит отсчет времени на 2 часа, а -3 уменьшит на три часа.</p>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="name">
+                                Скрывать подписи счетчиков (секунды, минуты, часы)
+                            </div>
+                            <div class="value">
+                                <input type="hidden" name="domains_settings[{$domain_hash}][hideLabels]" value="false" />
+                                <input type="checkbox" {if $settings.hideLabels == 'true'}checked="checked"{/if} name="domains_settings[{$domain_hash}][hideLabels]" value="true" />
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="name">
+                                Скрывать линии
+                            </div>
+                            <div class="value">
+                                <input type="hidden" name="domains_settings[{$domain_hash}][hideLine]" value="false" />
+                                <input type="checkbox" {if $settings.hideLine == 'true'}checked="checked"{/if} name="domains_settings[{$domain_hash}][hideLine]" value="true" />
+                                <p class="hint">Если "Да", скрываются черные линии посередине цифр. Не работает со стилем "flip"</p>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="name">
+                                Текст подписей счетчиков.
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][second_text]" value="{$settings.second_text|escape}" class="small" />
+                                <p class="hint">Секунды</p>
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][minute_text]" value="{$settings.minute_text|escape}" class="small" />
+                                <p class="hint">Минуты</p>
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][hour_text]" value="{$settings.hour_text|escape}" class="small" />
+                                <p class="hint">Часы</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <div class="field">
+                            <div class="name">
+                                Цвет подписей
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][labels_color]" value="{$settings.labels_color|escape}" class="small color" />
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="name">
+                                Размер подписей
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][labels_size]" value="{$settings.labels_size|escape}" class="small" />
+                                <p class="hint">Процент от исходного размера: 1 - 100% размер шрифта, 0.5 - 50% размера шрифта.</p>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="name">
+                                Настройки цвета счетчиков
+                            </div>
+                            <div class="value">
+                                <p class="hint">Настройки цвета доступны только при стиле "boring"</p>
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][numbers_color]" value="{$settings.numbers_color|escape}" class="small color" />
+                                <p class="hint">Цвет цифр</p>
+                            </div>
+                            <div class="value">
+                                <input type="text" name="domains_settings[{$domain_hash}][numbers_bkgd]" value="{$settings.numbers_bkgd|escape}" class="small color" />
+                                <p class="hint">Цвет фона</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <div class="field">
+                            <a class="edit-templates" href="#"><i class="icon16 edit"></i>Шаблоны</a>
+                        </div>
+
+
+                        <div class="templates-block">
+                            {foreach from=$templates key=key item=template}
+                                {$count = array_push($tpls,"'sf-template-`$key`-`$domain_hash`'")}
+                                <div class="field">
+                                    <div class="name">
+                                        {$template.name}<br /><span class="hint">HTML + Smarty</span>
+                                    </div>
+                                    <div class="value no-shift">
+                                        <a class="edit-template" href="#"><i class="icon16 edit"></i>Изменить шаблон</a>
+                                        <div class="template-block">
+                                            <textarea id="sf-template-{$key}-{$domain_hash}"  class="body" name="domains_settings[{$domain_hash}][templates][{$key}][template]">{$template.template|escape}</textarea>
+
+                                            {if $template.change_tpl}
+                                                <p class="gray"><i class="icon16 exclamation"></i>Внимание! Шаблон по умолчанию был изменен</p>
+                                                <input type="checkbox" name="domains_settings[{$domain_hash}][templates][{$key}][reset_tpl]" value="1"  /> - Сбросить изменения, использовать шаблон по умолчанию
+                                            {/if}
+
+                                        </div>
+                                    </div>
+                                </div>
+                            {/foreach}
+                        </div>
+                    </div>
+                    <hr>
+                {/foreach}
+            {/foreach}
+
+
+
+
+            <div class="field">
+                <div class="value submit">
+                    <input type="submit" class="button green" value="Сохранить">
+                    <span id="plugins-settings-form-status" style="display:none">
+                        <i style="vertical-align:middle" class="icon16 yes"></i> [`Saved`]
+                    </span>
+                </div>
+            </div>
+        </form>
     </div>
-    </form>
-</div>
 </div>
 
 <script type="text/javascript">
     $(function () {
-        $('input[name="shop_productday[mode]"]').change(
-            function(){
-                if($(this).val()=='manual') {
-                    $('input[name="shop_productday[product_url]"]').removeAttr('disabled');
-                }
-                else {
-                    $('input[name="shop_productday[product_url]"]').attr('disabled',true);
-                }
-            }
-        );
+        // colorpickers
+        $('.color').each(function () {
+            var input = $(this);
+            var replacer = $('<span class="color-replacer">' +
+                    '<i class="icon16 color" style="background: #' + input.val().substr(1) + '"></i>' +
+                    '</span>').insertAfter(input);
+            var picker = $('<div style="display:none;" class="color-picker"></div>').
+                    insertAfter(replacer);
+            var farbtastic = $.farbtastic(picker, function (color) {
+                replacer.find('i').css('background', color);
+                input.val(color);
+            });
+            farbtastic.setColor('#' + input.val());
+            replacer.click(function () {
+                picker.slideToggle(200);
+                return false;
+            });
 
-        var c = CodeMirror.fromTextArea(document.getElementById('sf-template'), {
-            mode: "text/html",
-            tabMode: "indent",
-            height: "dynamic",
-            lineWrapping: true
-        });
-        $("#sf-template").change(function() {
-            c.setValue($(this).val())
-        });
-        $("#sf-settings").submit(function () {
-            var f = $(this);
-            $.post(f.attr('action'), f.serialize(), function (response) {
-                if(response.status == 'ok') {
-                    $('#wa-design-button').removeClass('red').addClass('green');
-                    $("#wa-editor-status-fail").hide()
-                    $("#wa-editor-status-ok span").html(response.data.message);
-                    $("#wa-editor-status-ok").fadeIn('slow', function () {
-                        $(this).fadeOut(1000);
-                    });
-                } else {
-                    $('#wa-design-button').removeClass('green').addClass('red');
-                    $("#wa-editor-status-ok").hide();
-                    $("#wa-editor-status-fail span").html(response.errors.join(', '));
-                    $("#wa-editor-status-fail").fadeIn('slow');
+            var timer_id;
+            input.unbind('keydown').bind('keydown', function () {
+                if (timer_id) {
+                    clearTimeout(timer_id);
                 }
-            }, "json")
+                timer_id = setTimeout(function () {
+                    farbtastic.setColor(input.val());
+                }, 250);
+            });
+
+        });
+
+
+
+        $('input[name="domains_settings[{$domain_hash}][mode]"]').change(function () {
+            if ($(this).val() == 'manual') {
+                $('input[name="domains_settings[{$domain_hash}][product_url]"]').removeAttr('disabled');
+            }
+            else {
+                $('input[name="domains_settings[{$domain_hash}][product_url]"]').attr('disabled', true);
+            }
+            if ($(this).val() == 'list') {
+                $('input[name="domains_settings[{$domain_hash}][set_id]"]').removeAttr('disabled');
+            }
+            else {
+                $('input[name="domains_settings[{$domain_hash}][set_id]"]').attr('disabled', true);
+            }
+        });
+
+        var ids = [{implode(',', $tpls)}];
+        for (var i = 0; i < ids.length; i++) {
+            var c = CodeMirror.fromTextArea(document.getElementById(ids[i]), {
+                mode: "text/html",
+                tabMode: "indent",
+                height: "dynamic",
+                lineWrapping: true
+            });
+            $(ids[i]).change(function () {
+                c.setValue($(this).val())
+            });
+            $(ids[i]).submit(function () {
+                var f = $(this);
+                $.post(f.attr('action'), f.serialize(), function (response) {
+                    if (response.status == 'ok') {
+                        $('#wa-design-button').removeClass('red').addClass('green');
+                        $("#wa-editor-status-fail").hide()
+                        $("#wa-editor-status-ok span").html(response.data.message);
+                        $("#wa-editor-status-ok").fadeIn('slow', function () {
+                            $(this).fadeOut(1000);
+                        });
+                    } else {
+                        $('#wa-design-button').removeClass('green').addClass('red');
+                        $("#wa-editor-status-ok").hide();
+                        $("#wa-editor-status-fail span").html(response.errors.join(', '));
+                        $("#wa-editor-status-fail").fadeIn('slow');
+                    }
+                }, "json")
+                return false;
+            });
+        }
+
+        $('.template-block').hide();
+        $('.edit-template').click(function () {
+            var template = $(this).closest('.field').find('.template-block');
+            if (template.is(':visible')) {
+                template.hide();
+            } else {
+                template.show();
+            }
+            return false;
+
+        });
+
+        $('.templates-block').hide();
+        $('.edit-templates').click(function () {
+            var block = $(this).parent().next('.templates-block');
+            if (block.is(':visible')) {
+                block.hide();
+            } else {
+                block.show();
+            }
             return false;
         });
     });
