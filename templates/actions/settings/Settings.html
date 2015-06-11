@@ -71,22 +71,22 @@
                                 Режим выбора товара:
                             </div>
                             <div class="value">
-                                <input {if !$settings.mode}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="" /> - Отключен
+                                <input class="product-mode" {if !$settings.mode}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="" /> - Отключен
                                 <p class="hint">Товар дня не выводится</p>
                             </div>
                             <div class="value">
-                                <input {if $settings.mode == 'auto'}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="auto" /> - Авто
+                                <input class="product-mode" {if $settings.mode == 'auto'}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="auto" /> - Авто
                                 <p class="hint">Товар дня выбирается случаенным образом из товаров с зачеркнутой ценой</p>
                             </div>
                             <div class="value">
-                                <input {if $settings.mode == 'manual'}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="manual" /> - Ручной
+                                <input class="product-mode" {if $settings.mode == 'manual'}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="manual" /> - Ручной
                                 <p class="hint">Ссылка на страницу товара дня</p>
-                                <p><input {if $settings.mode != 'manual'}disabled="disabled"{/if} type="text" value="{$settings.product_url|escape|default:''}" name="domains_settings[{$domain_hash}][product_url]"  placeholder="Сссылка на товар" size="200" /></p>
+                                <p><input class="product-url" {if $settings.mode != 'manual'}disabled="disabled"{/if} type="text" value="{$settings.product_url|escape|default:''}" name="domains_settings[{$domain_hash}][product_url]"  placeholder="Сссылка на товар" size="200" /></p>
                             </div>
                             <div class="value">
-                                <input {if $settings.mode == 'list'}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="list" /> - Список товаров
+                                <input class="product-mode" {if $settings.mode == 'list'}checked="checked"{/if} type="radio" name="domains_settings[{$domain_hash}][mode]" value="list" /> - Список товаров
                                 <p class="hint">Товары дня будут браться последовательно из указанного вами списка</p>
-                                <p><input {if $settings.mode != 'list'}disabled="disabled"{/if} type="text" value="{$settings.set_id|escape|default:''}" name="domains_settings[{$domain_hash}][set_id]"  placeholder="Идентификатор списка" size="200" /></p>
+                                <p><input class="product-list" {if $settings.mode != 'list'}disabled="disabled"{/if} type="text" value="{$settings.set_id|escape|default:''}" name="domains_settings[{$domain_hash}][set_id]"  placeholder="Идентификатор списка" size="200" /></p>
                             </div>
                         </div>
 
@@ -331,18 +331,19 @@
 
 
 
-        $('input[name="domains_settings[{$domain_hash}][mode]"]').change(function () {
+        $('.product-mode').change(function () {
+            var field_group = $(this).closest('.field-group');
             if ($(this).val() == 'manual') {
-                $('input[name="domains_settings[{$domain_hash}][product_url]"]').removeAttr('disabled');
+                field_group.find('.product-url').removeAttr('disabled');
             }
             else {
-                $('input[name="domains_settings[{$domain_hash}][product_url]"]').attr('disabled', true);
+                field_group.find('.product-url').attr('disabled', true);
             }
             if ($(this).val() == 'list') {
-                $('input[name="domains_settings[{$domain_hash}][set_id]"]').removeAttr('disabled');
+                field_group.find('.product-list').removeAttr('disabled');
             }
             else {
-                $('input[name="domains_settings[{$domain_hash}][set_id]"]').attr('disabled', true);
+                field_group.find('.product-list').attr('disabled', true);
             }
         });
 
