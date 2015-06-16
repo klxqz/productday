@@ -24,34 +24,36 @@
             $('.productday_block').remove();
         }
 
-        new Countdown({
-            time: {$time},
-            width: {$settings.width|escape},
-            height: {$settings.height|escape},
-            rangeHi: "hour",
-            style: "{$settings.style|escape}", //"boring" or "flip"
-            hideLabels: {$settings.hideLabels|escape},
-            hideLine: {$settings.hideLine|escape},
-            labelText: {
-                second: "{$settings.second_text|escape}",
-                minute: "{$settings.minute_text|escape}",
-                hour: "{$settings.hour_text|escape}"
-            },
-            numbers: {
-                font: "Arial",
-                color: "{$settings.numbers_color|escape}",
-                bkgd: "{$settings.numbers_bkgd|escape}",
-                rounded: 0.15 // percentage of size 
-            },
-            labels: {
-                font: "Arial",
-                color: "{$settings.labels_color|escape}",
-                offset: 0, // Number of pixels to push the labels down away from numbers.
-                textScale: {$settings.labels_size|escape}, // Percentage of size
-                weight: "normal" // < - no comma on last item!
-            },
-            onComplete: countdownComplete
-        });
+        if (myCountdown === undefined) {
+            var myCountdown = new Countdown({
+                time: {$time},
+                width: {$settings.width|escape},
+                height: {$settings.height|escape},
+                rangeHi: "hour",
+                style: "{$settings.style|escape}", //"boring" or "flip"
+                hideLabels: {$settings.hideLabels|escape},
+                hideLine: {$settings.hideLine|escape},
+                labelText: {
+                    second: "{$settings.second_text|escape}",
+                    minute: "{$settings.minute_text|escape}",
+                    hour: "{$settings.hour_text|escape}"
+                },
+                numbers: {
+                    font: "Arial",
+                    color: "{$settings.numbers_color|escape}",
+                    bkgd: "{$settings.numbers_bkgd|escape}",
+                    rounded: 0.15 // percentage of size 
+                },
+                labels: {
+                    font: "Arial",
+                    color: "{$settings.labels_color|escape}",
+                    offset: 0, // Number of pixels to push the labels down away from numbers.
+                    textScale: {$settings.labels_size|escape}, // Percentage of size
+                    weight: "normal" // < - no comma on last item!
+                },
+                onComplete: countdownComplete
+            });
+        }
         </script>
 
         <div class="productday_img">
