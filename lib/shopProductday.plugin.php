@@ -56,7 +56,7 @@ class shopProductdayPlugin extends shopPlugin {
         if (!$product) {
             return false;
         }
-        
+
         $domain_settings = shopProductday::getDomainSettings();
         $templates = $domain_settings['templates'];
 
@@ -94,24 +94,24 @@ class shopProductdayPlugin extends shopPlugin {
             $product = $product_model->getByField('url', $url);
             if (!empty($product)) {
                 shopProductday::saveDomainSetting('time', self::getEndTime($settings['interval']));
-                return $product;
+                //return $product;
             }
         } elseif ($settings['mode'] == 'auto') {
             if (!empty($settings['time']) && $settings['time'] == self::getEndTime($settings['interval']) && !empty($settings['product_id'])) {
                 $product = $p_model->getById($settings['product_id']);
-                return $product;
+                //return $product;
             } else {
                 $product = self::getProduct();
                 if (!empty($product)) {
                     shopProductday::saveDomainSetting('product_id', $product['id']);
                     shopProductday::saveDomainSetting('time', self::getEndTime($settings['interval']));
-                    return $product;
+                    //return $product;
                 }
             }
         } elseif ($settings['mode'] == 'list') {
             if ($settings['time'] == self::getEndTime($settings['interval']) && !empty($settings['product_id'])) {
                 $product = $p_model->getById($settings['product_id']);
-                return $product;
+                //return $product;
             } else {
                 if (!isset($settings['list_index'])) {
                     $settings['list_index'] = 0;
@@ -126,15 +126,23 @@ class shopProductdayPlugin extends shopPlugin {
                     shopProductday::saveDomainSetting('product_id', $product['id']);
                     shopProductday::saveDomainSetting('time', self::getEndTime($settings['interval']));
                     shopProductday::saveDomainSetting('list_index', $settings['list_index']);
-                    return $product;
+                    //return $product;
                 }
             }
         }
 
+        if ($product) {
+            $products = array($product);
+            shopRounding::roundProducts($products);
+            $product = array_pop($products);
+            return $product;
+        }
+
+
         return false;
     }
 
-    public static function getProduct() {
+    private static function getProduct() {
         $routing = wa()->getRouting();
         $domain = wa()->getConfig()->getDomain();
         $domain_routes = $routing->getByApp('shop');
