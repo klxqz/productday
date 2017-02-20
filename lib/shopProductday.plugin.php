@@ -85,24 +85,26 @@ class shopProductdayPlugin extends shopPlugin {
 
     public static function getProductday() {
         $settings = shopProductday::getDomainSettings();
-        $p_model = new shopProductModel();
-
+        $product_id = null;
 
         if ($settings['mode'] == 'manual' && !empty($settings['product_url'])) {
             $url = array_pop(explode('/', trim($settings['product_url'], '/')));
             $product_model = new shopProductModel();
             $product = $product_model->getByField('url', $url);
+
             if (!empty($product)) {
+                $product_id = $product['id'];
                 shopProductday::saveDomainSetting('time', self::getEndTime($settings['interval']));
                 //return $product;
             }
         } elseif ($settings['mode'] == 'auto') {
             if (!empty($settings['time']) && $settings['time'] == self::getEndTime($settings['interval']) && !empty($settings['product_id'])) {
-                $product = $p_model->getById($settings['product_id']);
+                $product_id = $settings['product_id'];
                 //return $product;
             } else {
                 $product = self::getProduct();
                 if (!empty($product)) {
+                    $product_id = $product['id'];
                     shopProductday::saveDomainSetting('product_id', $product['id']);
                     shopProductday::saveDomainSetting('time', self::getEndTime($settings['interval']));
                     //return $product;
@@ -110,7 +112,7 @@ class shopProductdayPlugin extends shopPlugin {
             }
         } elseif ($settings['mode'] == 'list') {
             if ($settings['time'] == self::getEndTime($settings['interval']) && !empty($settings['product_id'])) {
-                $product = $p_model->getById($settings['product_id']);
+                $product_id = $settings['product_id'];
                 //return $product;
             } else {
                 if (!isset($settings['list_index'])) {
@@ -123,6 +125,7 @@ class shopProductdayPlugin extends shopPlugin {
                 $products = $collection->getProducts('*', $offset, 1);
                 if (!empty($products)) {
                     $product = array_pop($products);
+                    $product_id = $product['id'];
                     shopProductday::saveDomainSetting('product_id', $product['id']);
                     shopProductday::saveDomainSetting('time', self::getEndTime($settings['interval']));
                     shopProductday::saveDomainSetting('list_index', $settings['list_index']);
@@ -131,8 +134,9 @@ class shopProductdayPlugin extends shopPlugin {
             }
         }
 
-        if ($product) {
-            $products = array($product);
+        if ($product_id) {
+            $collection = new shopProductsCollection('id/' . $product_id);
+            $products = $collection->getProducts('*');
             shopRounding::roundProducts($products);
             $product = array_pop($products);
             return $product;
